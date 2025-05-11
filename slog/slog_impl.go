@@ -47,7 +47,7 @@ func newLogger(opts ...Option) *logger {
 		compress:       true,
 		filePerm:       0700,
 		enableColor:    false, // 默认不启用颜色
-		callerSkip:     1,     // 默认跳过一层调用栈，即从用户代码开始
+		callerSkip:     8,     // 跳过8层调用栈，即从用户代码开始。“8”是调试出来的，因为slog封装了一层，所以调用栈会多了很多
 	}
 	// 应用选项
 	for _, opt := range opts {

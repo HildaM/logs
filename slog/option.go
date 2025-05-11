@@ -88,9 +88,9 @@ func WithColor(enable bool) Option {
 }
 
 // WithCallerSkip 设置调用栈跳过级别
-// 默认为1，跳过slog库内部调用
-// 设置为0会显示slog库内部调用位置
-// 设置为2或更高会跳过更多的调用层
+// 默认为8，跳过slog库内部调用 (这个参数调试出来的)
+// 小于8，则显示slog库内部调用位置
+// 设置为0，则从底层调用开始展示
 func WithCallerSkip(skip int) Option {
 	return func(l *logger) {
 		if skip < 0 {
