@@ -26,6 +26,7 @@ type logger struct {
 	filePerm              os.FileMode // 日志文件权限
 	printAfterInitialized bool        // 是否在初始化后打印日志(默认 true)
 	enableColor           bool        // 是否启用颜色输出(默认 false)
+	callerSkip            int         // 调用栈跳过级别(默认 1，跳过slog库内部调用)
 
 	// 日志文件写入
 	bufferSize int // 缓冲区大小(默认 8*1024. 如果为0, 则立即写入文件)
@@ -46,6 +47,7 @@ func newLogger(opts ...Option) *logger {
 		compress:       true,
 		filePerm:       0700,
 		enableColor:    false, // 默认不启用颜色
+		callerSkip:     1,     // 默认跳过一层调用栈，即从用户代码开始
 	}
 	// 应用选项
 	for _, opt := range opts {
@@ -65,6 +67,9 @@ func NewStdoutLogger(opts ...Option) (LoggerWithWriter, error) {
 	h := handler.NewConsoleHandler(parseLevels(l.level))
 	h.SetFormatter(logFormatter)
 	l.sl.AddHandler(h)
+
+	// 设置调用栈跳过级别
+	l.sl.CallerSkip = l.callerSkip
 
 	// 设置其他参数
 	l.rotateWriter = h.Output
@@ -104,6 +109,9 @@ func NewFileLogger(path string, opts ...Option) (LoggerWithWriter, error) {
 		l.rotateWriter = h.Writer()
 	}
 
+	// 设置调用栈跳过级别
+	l.sl.CallerSkip = l.callerSkip
+
 	l.sl.DoNothingOnPanicFatal()
 
 	// 打印 logger 的内部设置
@@ -117,6 +125,7 @@ func NewFileLogger(path string, opts ...Option) (LoggerWithWriter, error) {
 		l.Info("[logger] File Perm: %o", l.filePerm)
 		l.Info("[logger] Time Format: %s", l.timeFormat)
 		l.Info("[logger] Enable Color: %t", l.enableColor)
+		l.Info("[logger] Caller Skip: %d", l.callerSkip)
 	}
 
 	return l, nil

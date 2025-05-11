@@ -18,7 +18,8 @@ func TestNewLogger(t *testing.T) {
 	assert.Equal(t, "1w", l.rotateInterval)
 	assert.True(t, l.compress)
 	assert.Equal(t, os.FileMode(0700), l.filePerm)
-	assert.False(t, l.enableColor) // 默认不启用颜色
+	assert.False(t, l.enableColor)   // 默认不启用颜色
+	assert.Equal(t, 1, l.callerSkip) // 默认调用栈跳过级别为1
 
 	// 测试应用Options
 	l = newLogger(
@@ -31,6 +32,7 @@ func TestNewLogger(t *testing.T) {
 		WithFilePerm(0644),
 		WithPrintAfterInitialized(),
 		WithColor(true),
+		WithCallerSkip(2),
 	)
 	assert.Equal(t, "debug", l.level)
 	assert.Equal(t, 200, l.maxSize)
@@ -41,6 +43,7 @@ func TestNewLogger(t *testing.T) {
 	assert.Equal(t, os.FileMode(0644), l.filePerm)
 	assert.True(t, l.printAfterInitialized)
 	assert.True(t, l.enableColor)
+	assert.Equal(t, 2, l.callerSkip)
 }
 
 func TestOptions(t *testing.T) {
@@ -99,6 +102,19 @@ func TestOptions(t *testing.T) {
 
 	l = &logger{}
 	assert.False(t, l.enableColor) // 默认为false
+
+	// 测试WithCallerSkip
+	l = &logger{}
+	WithCallerSkip(2)(l)
+	assert.Equal(t, 2, l.callerSkip)
+
+	l = &logger{}
+	assert.Equal(t, 0, l.callerSkip) // 新对象默认为0
+
+	// 测试负值
+	l = &logger{}
+	WithCallerSkip(-1)(l)
+	assert.Equal(t, 0, l.callerSkip) // 负值会被设为0
 }
 
 func TestNewStdoutLogger(t *testing.T) {

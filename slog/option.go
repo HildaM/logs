@@ -86,3 +86,16 @@ func WithColor(enable bool) Option {
 		l.enableColor = enable
 	}
 }
+
+// WithCallerSkip 设置调用栈跳过级别
+// 默认为1，跳过slog库内部调用
+// 设置为0会显示slog库内部调用位置
+// 设置为2或更高会跳过更多的调用层
+func WithCallerSkip(skip int) Option {
+	return func(l *logger) {
+		if skip < 0 {
+			skip = 0
+		}
+		l.callerSkip = skip
+	}
+}
