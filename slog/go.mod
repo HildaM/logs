@@ -1,4 +1,4 @@
-module github.com/hildam/logs/slog
+module github.com/HildaM/logs/slog
 
 go 1.24.1
 
