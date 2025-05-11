@@ -5,7 +5,7 @@
 ## 特性
 
 - 支持标准输出和文件输出
-- 支持日志级别：Debug、Info、Warn、Error
+- 支持日志级别：Debug、Info、Warn、Error、Fatal
 - 支持按大小轮转日志文件
 - 支持按时间轮转日志文件（秒、分、时、天、周）
 - 支持日志文件压缩
@@ -53,6 +53,7 @@ func main() {
     slog.Debug("这是一条调试日志")
     slog.Warn("这是一条警告日志: %s", "警告内容")
     slog.Error("这是一条错误日志: %v", map[string]string{"error": "发生错误"})
+    slog.Fatal("这是一条致命错误日志: %v", "程序将终止")
     
     // 也可以使用io.Writer接口
     slog.Write([]byte("直接写入内容"))
@@ -82,6 +83,50 @@ func main() {
     
     // 直接使用包级函数
     slog.Info("这是写入文件的日志")
+}
+```
+
+### 使用已创建的Logger实例
+
+您可以使用`slog.UseLogger`函数将已经创建的Logger实例设置为全局Logger。这个函数会重置初始化状态，允许重新初始化全局Logger。
+
+```go
+package main
+
+import (
+    "github.com/hildam/logs/slog"
+)
+
+func main() {
+    // 创建一个文件Logger实例
+    fileLogger, err := slog.NewFileLogger("./app.log",
+        slog.WithLevel("debug"),
+        slog.WithRotateInterval("1d"),
+    )
+    if err != nil {
+        panic(err)
+    }
+    
+    // 使用该实例作为全局Logger
+    slog.UseLogger(fileLogger)
+    
+    // 现在可以直接使用包级函数，它们会调用fileLogger
+    slog.Info("这条日志会写入app.log文件")
+    
+    // 也可以直接使用fileLogger
+    fileLogger.Debug("这条日志也会写入app.log文件")
+    
+    // 稍后如果需要，可以切换到标准输出
+    stdLogger, err := slog.NewStdoutLogger()
+    if err != nil {
+        panic(err)
+    }
+    
+    // 切换全局Logger
+    slog.UseLogger(stdLogger)
+    
+    // 此时包级函数会输出到标准输出
+    slog.Info("这条日志会输出到控制台")
 }
 ```
 
@@ -368,4 +413,5 @@ func main() {
 5. 默认启用日志压缩
 6. 默认的文件权限是0700
 7. **全局单例模式下，`Init`和`InitFile`只有第一次调用会生效**
-8. **如果日志初始化失败（如权限问题、磁盘已满等），系统会直接panic，而非忽略错误** 
+8. **如果日志初始化失败（如权限问题、磁盘已满等），系统会直接panic，而非忽略错误**
+9. **`UseLogger`函数会重置初始化状态，允许后续再次调用`Init`或`InitFile`** 

@@ -135,9 +135,9 @@ func genLogFormatter(timeFormat string) *slog.TextFormatter {
 func parseLevels(level string) (levels []slog.Level) {
 	switch strings.ToLower(level) {
 	case "debug":
-		levels = append(levels, slog.InfoLevel, slog.WarnLevel, slog.ErrorLevel, slog.DebugLevel)
+		levels = append(levels, slog.InfoLevel, slog.WarnLevel, slog.ErrorLevel, slog.FatalLevel, slog.DebugLevel)
 	default:
-		levels = append(levels, slog.InfoLevel, slog.WarnLevel, slog.ErrorLevel)
+		levels = append(levels, slog.InfoLevel, slog.WarnLevel, slog.ErrorLevel, slog.FatalLevel)
 	}
 	return
 }
@@ -218,6 +218,10 @@ func (l *logger) Warn(msg string, args ...interface{}) {
 
 func (l *logger) Debug(msg string, args ...interface{}) {
 	l.sl.Debugf(msg, args...)
+}
+
+func (l *logger) Fatal(msg string, args ...interface{}) {
+	l.sl.Fatalf(msg, args...)
 }
 
 // Write 仅支持文件输出模式

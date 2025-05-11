@@ -86,6 +86,11 @@ func Debug(msg string, args ...interface{}) {
 	GetLogger().Debug(msg, args...)
 }
 
+// Fatal 记录Fatal级别日志
+func Fatal(msg string, args ...interface{}) {
+	GetLogger().Fatal(msg, args...)
+}
+
 // Write 实现io.Writer接口
 func Write(p []byte) (int, error) {
 	return GetLogger().Write(p)

@@ -8,6 +8,7 @@ type Logger interface {
 	Error(msg string, args ...interface{})
 	Warn(msg string, args ...interface{})
 	Debug(msg string, args ...interface{})
+	Fatal(msg string, args ...interface{})
 }
 
 // LoggerWithWriter 接口

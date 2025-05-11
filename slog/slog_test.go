@@ -100,6 +100,7 @@ func TestNewStdoutLogger(t *testing.T) {
 	logger.Error("test error: %+v", "test error")
 	logger.Warn("test warn: %+v", "test warn")
 	logger.Debug("test debug: %+v", "test debug") // 默认不会记录debug日志
+	logger.Fatal("test fatal: %+v", "test fatal") // 记录fatal级别日志
 
 	// 测试debug级别
 	logger, err = NewStdoutLogger(WithLevel("debug"))
