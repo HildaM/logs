@@ -313,6 +313,16 @@ slog.WithFilePerm(0644)
 slog.WithPrintAfterInitialized()
 ```
 
+### 颜色输出
+
+```go
+// 启用颜色输出（默认为关闭）
+slog.WithColor(true)
+
+// 关闭颜色输出
+slog.WithColor(false)
+```
+
 ## 完整示例
 
 ### 全局单例模式示例
@@ -412,6 +422,7 @@ func main() {
 4. 默认的最大文件大小是100MB
 5. 默认启用日志压缩
 6. 默认的文件权限是0700
-7. **全局单例模式下，`Init`和`InitFile`只有第一次调用会生效**
-8. **如果日志初始化失败（如权限问题、磁盘已满等），系统会直接panic，而非忽略错误**
-9. **`UseLogger`函数会重置初始化状态，允许后续再次调用`Init`或`InitFile`** 
+7. **默认关闭颜色输出，可通过WithColor选项开启**
+8. **全局单例模式下，`Init`和`InitFile`只有第一次调用会生效**
+9. **如果日志初始化失败（如权限问题、磁盘已满等），系统会直接panic，而非忽略错误**
+10. **`UseLogger`函数会重置初始化状态，允许后续再次调用`Init`或`InitFile`** 

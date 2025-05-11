@@ -78,3 +78,11 @@ func WithPrintAfterInitialized() Option {
 		l.printAfterInitialized = true
 	}
 }
+
+// WithColor 设置是否启用颜色输出
+// 默认为false，不启用颜色
+func WithColor(enable bool) Option {
+	return func(l *logger) {
+		l.enableColor = enable
+	}
+}

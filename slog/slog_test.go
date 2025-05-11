@@ -18,6 +18,7 @@ func TestNewLogger(t *testing.T) {
 	assert.Equal(t, "1w", l.rotateInterval)
 	assert.True(t, l.compress)
 	assert.Equal(t, os.FileMode(0700), l.filePerm)
+	assert.False(t, l.enableColor) // 默认不启用颜色
 
 	// 测试应用Options
 	l = newLogger(
@@ -29,6 +30,7 @@ func TestNewLogger(t *testing.T) {
 		WithTimeFormat(time.RFC3339),
 		WithFilePerm(0644),
 		WithPrintAfterInitialized(),
+		WithColor(true),
 	)
 	assert.Equal(t, "debug", l.level)
 	assert.Equal(t, 200, l.maxSize)
@@ -38,6 +40,7 @@ func TestNewLogger(t *testing.T) {
 	assert.Equal(t, time.RFC3339, l.timeFormat)
 	assert.Equal(t, os.FileMode(0644), l.filePerm)
 	assert.True(t, l.printAfterInitialized)
+	assert.True(t, l.enableColor)
 }
 
 func TestOptions(t *testing.T) {
@@ -88,6 +91,14 @@ func TestOptions(t *testing.T) {
 	l = &logger{}
 	WithPrintAfterInitialized()(l)
 	assert.True(t, l.printAfterInitialized)
+
+	// 测试WithColor
+	l = &logger{}
+	WithColor(true)(l)
+	assert.True(t, l.enableColor)
+
+	l = &logger{}
+	assert.False(t, l.enableColor) // 默认为false
 }
 
 func TestNewStdoutLogger(t *testing.T) {
@@ -242,7 +253,15 @@ func TestParseLevels(t *testing.T) {
 }
 
 func TestGenLogFormatter(t *testing.T) {
-	formatter := genLogFormatter(time.RFC3339)
+	// 测试不启用颜色（默认）
+	formatter := genLogFormatter(time.RFC3339, false)
+	assert.NotNil(t, formatter)
+	assert.False(t, formatter.EnableColor)
+	assert.True(t, formatter.FullDisplay)
+	assert.Equal(t, time.RFC3339, formatter.TimeFormat)
+
+	// 测试启用颜色
+	formatter = genLogFormatter(time.RFC3339, true)
 	assert.NotNil(t, formatter)
 	assert.True(t, formatter.EnableColor)
 	assert.True(t, formatter.FullDisplay)

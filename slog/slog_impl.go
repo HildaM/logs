@@ -25,6 +25,7 @@ type logger struct {
 	compress              bool        // 是否压缩(默认 true)
 	filePerm              os.FileMode // 日志文件权限
 	printAfterInitialized bool        // 是否在初始化后打印日志(默认 true)
+	enableColor           bool        // 是否启用颜色输出(默认 false)
 
 	// 日志文件写入
 	bufferSize int // 缓冲区大小(默认 8*1024. 如果为0, 则立即写入文件)
@@ -44,6 +45,7 @@ func newLogger(opts ...Option) *logger {
 		rotateInterval: "1w",
 		compress:       true,
 		filePerm:       0700,
+		enableColor:    false, // 默认不启用颜色
 	}
 	// 应用选项
 	for _, opt := range opts {
@@ -57,7 +59,7 @@ func NewStdoutLogger(opts ...Option) (LoggerWithWriter, error) {
 	l := newLogger(opts...)
 
 	// 创建日志格式化方式
-	logFormatter := genLogFormatter(l.timeFormat)
+	logFormatter := genLogFormatter(l.timeFormat, l.enableColor)
 
 	// 设置 slog handler
 	h := handler.NewConsoleHandler(parseLevels(l.level))
@@ -78,7 +80,7 @@ func NewFileLogger(path string, opts ...Option) (LoggerWithWriter, error) {
 		l.maxBackups = 12
 	}
 
-	logFormatter := genLogFormatter(l.timeFormat)
+	logFormatter := genLogFormatter(l.timeFormat, l.enableColor)
 
 	// 文件大小轮转和时间轮转是两种不同的日志管理机制,设计上选择其一,简化逻辑实现和管理
 	// 同时使用两种策略会导致复杂的交互问题（如先达到大小限制还是先达到时间限制？)
@@ -114,17 +116,18 @@ func NewFileLogger(path string, opts ...Option) (LoggerWithWriter, error) {
 		l.Info("[logger] Buffer Size: %d", l.bufferSize)
 		l.Info("[logger] File Perm: %o", l.filePerm)
 		l.Info("[logger] Time Format: %s", l.timeFormat)
+		l.Info("[logger] Enable Color: %t", l.enableColor)
 	}
 
 	return l, nil
 }
 
 // genLogFormatter 构建日志格式
-func genLogFormatter(timeFormat string) *slog.TextFormatter {
+func genLogFormatter(timeFormat string, enableColor bool) *slog.TextFormatter {
 	logTemplate := "[{{datetime}}] [{{level}}] [{{caller}}] {{message}}\n"
 	// custom log format
 	logFormatter := slog.NewTextFormatter(logTemplate)
-	logFormatter.EnableColor = true
+	logFormatter.EnableColor = enableColor
 	logFormatter.FullDisplay = true
 	logFormatter.TimeFormat = timeFormat
 
